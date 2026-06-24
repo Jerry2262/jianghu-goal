@@ -3,8 +3,8 @@ import { createLegacyState, type LegacyState, type Reward } from "./progression"
 import {
   advancementResult,
   createGroupTable,
+  rankedStandings,
   recordResult,
-  topTwoAdvance,
   type GroupTable,
   type MatchScore
 } from "./tournament";
@@ -17,6 +17,7 @@ export interface RunState {
   reputation: number;
   groupTable: GroupTable;
   groupMatchesPlayed: number;
+  playedGroupOpponentIds: string[];
   legacy: LegacyState;
   pendingRewards: Reward[];
   endedReason?: string;
@@ -28,6 +29,7 @@ export function createRunState(): RunState {
     reputation: 5,
     groupTable: createGroupTable(["player", ...demoOpponents.map((opponent) => opponent.id)]),
     groupMatchesPlayed: 0,
+    playedGroupOpponentIds: [],
     legacy: createLegacyState(),
     pendingRewards: []
   };
@@ -49,6 +51,13 @@ export function applyGroupResult(run: RunState, score: MatchScore): RunState {
     throw new Error("Group result must involve player");
   }
 
+  const opponentId = homeIsPlayer ? score.awayId : score.homeId;
+  const playedGroupOpponentIds = run.playedGroupOpponentIds ?? [];
+
+  if (playedGroupOpponentIds.includes(opponentId)) {
+    throw new Error("Group opponent already played");
+  }
+
   const playerLost = homeIsPlayer
     ? score.homeGoals < score.awayGoals
     : score.awayGoals < score.homeGoals;
@@ -57,7 +66,8 @@ export function applyGroupResult(run: RunState, score: MatchScore): RunState {
     ...run,
     reputation: nextReputation,
     groupTable: recordResult(run.groupTable, score),
-    groupMatchesPlayed: run.groupMatchesPlayed + 1
+    groupMatchesPlayed: run.groupMatchesPlayed + 1,
+    playedGroupOpponentIds: [...playedGroupOpponentIds, opponentId]
   };
 
   if (next.reputation <= 0) {
@@ -68,6 +78,16 @@ export function applyGroupResult(run: RunState, score: MatchScore): RunState {
     const result = advancementResult(next.groupTable);
 
     if (result.status === "playoff-required") {
+      const playerOutcome = playerAdvancementWithUnresolvedCutoff(next.groupTable, result.tiedTeamIds);
+
+      if (playerOutcome === "advanced") {
+        return { ...next, stage: "semifinal" };
+      }
+
+      if (playerOutcome === "eliminated") {
+        return { ...next, stage: "ended", endedReason: "failed group qualification" };
+      }
+
       return { ...next, stage: "ended", endedReason: "advancement playoff required" };
     }
 
@@ -82,21 +102,21 @@ export function applyGroupResult(run: RunState, score: MatchScore): RunState {
 }
 
 export function canAdvanceFromGroup(run: RunState): boolean {
-  try {
-    return topTwoAdvance(run.groupTable).includes("player");
-  } catch (error) {
-    if (error instanceof Error && error.message === "Advancement playoff required") {
-      return false;
-    }
+  const result = advancementResult(run.groupTable);
 
-    throw error;
+  if (result.status === "playoff-required") {
+    return playerAdvancementWithUnresolvedCutoff(run.groupTable, result.tiedTeamIds) === "advanced";
   }
+
+  return result.teamIds.includes("player");
 }
 
 export function applyKnockoutResult(run: RunState, winner: Winner): RunState {
   if (run.stage !== "semifinal" && run.stage !== "final") {
     throw new Error("Cannot apply knockout result outside knockout stage");
   }
+
+  validateKnockoutWinner(winner);
 
   if (winner === "draw") {
     throw new Error("Knockout draw requires sudden death");
@@ -115,4 +135,28 @@ export function applyKnockoutResult(run: RunState, winner: Winner): RunState {
   }
 
   return run;
+}
+
+function playerAdvancementWithUnresolvedCutoff(
+  table: GroupTable,
+  tiedTeamIds: string[]
+): "advanced" | "eliminated" | "playoff-required" {
+  const standings = rankedStandings(table);
+  const playerRankIndex = standings.findIndex((standing) => standing.teamId === "player");
+
+  if (playerRankIndex === -1) {
+    return "eliminated";
+  }
+
+  if (tiedTeamIds.includes("player")) {
+    return "playoff-required";
+  }
+
+  return playerRankIndex < 2 ? "advanced" : "eliminated";
+}
+
+function validateKnockoutWinner(winner: Winner): void {
+  if (winner !== "player" && winner !== "opponent" && winner !== "draw") {
+    throw new Error("Invalid knockout winner");
+  }
 }

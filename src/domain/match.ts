@@ -41,6 +41,7 @@ export function resolveMoment(match: MatchState, resolution: MomentResolution): 
   validateMatchMomentState(match);
   validateGoalCount(match.playerGoals);
   validateGoalCount(match.opponentGoals);
+  validateMomentOutcome(resolution.outcome);
 
   if (match.resolvedMoments >= match.maxMoments) {
     throw new Error("No unresolved moments remaining");
@@ -102,4 +103,16 @@ function validateGoalCount(goals: number): void {
 
 function isValidMomentCount(value: number): boolean {
   return Number.isFinite(value) && Number.isInteger(value) && value >= 0;
+}
+
+function validateMomentOutcome(outcome: MomentOutcome): void {
+  if (
+    outcome !== "player-goal" &&
+    outcome !== "opponent-goal" &&
+    outcome !== "save" &&
+    outcome !== "turnover" &&
+    outcome !== "fatigue"
+  ) {
+    throw new Error("Invalid moment outcome");
+  }
 }

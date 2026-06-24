@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { createMatchState, resolveMoment, finishMatch } from "../../src/domain/match";
+import type { MomentOutcome } from "../../src/domain/match";
 
 describe("match engine", () => {
   it("rejects empty opponent ids", () => {
@@ -32,6 +33,12 @@ describe("match engine", () => {
       expect(match.opponentGoals).toBe(0);
       expect(match.resolvedMoments).toBe(1);
     }
+  });
+
+  it("throws when a moment outcome is invalid at runtime", () => {
+    const match = createMatchState("group", "shaolin");
+
+    expect(() => resolveMoment(match, { outcome: "bad" as MomentOutcome })).toThrow("Invalid moment outcome");
   });
 
   it("throws when resolving after the maximum number of moments", () => {

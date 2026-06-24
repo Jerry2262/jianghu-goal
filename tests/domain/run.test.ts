@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { createRunState, applyGroupResult, canAdvanceFromGroup, applyKnockoutResult } from "../../src/domain/run";
 import { createGroupTable, recordResult } from "../../src/domain/tournament";
+import type { Winner } from "../../src/domain/match";
 
 describe("run state", () => {
   it("starts with reputation and a four-team group table", () => {
@@ -16,6 +17,7 @@ describe("run state", () => {
 
     expect(run.legacy.inheritedCardIds).toEqual([]);
     expect(run.pendingRewards).toEqual([]);
+    expect(run.playedGroupOpponentIds).toEqual([]);
   });
 
   it("reduces reputation by one after a group-stage loss", () => {
@@ -46,6 +48,19 @@ describe("run state", () => {
     ).toThrow("Group result must involve player");
   });
 
+  it("throws when applying a group result against the same opponent twice", () => {
+    const run = applyGroupResult(createRunState(), {
+      homeId: "player",
+      awayId: "shaolin",
+      homeGoals: 1,
+      awayGoals: 0
+    });
+
+    expect(() =>
+      applyGroupResult(run, { homeId: "player", awayId: "shaolin", homeGoals: 2, awayGoals: 0 })
+    ).toThrow("Group opponent already played");
+  });
+
   it("qualifies the player when they are top two", () => {
     let run = createRunState();
     run = applyGroupResult(run, { homeId: "player", awayId: "shaolin", homeGoals: 2, awayGoals: 0 });
@@ -55,22 +70,33 @@ describe("run state", () => {
     expect(canAdvanceFromGroup(run)).toBe(true);
   });
 
-  it("ends the run after a playoff-required group stage", () => {
+  it("advances an undefeated player when only NPCs are tied at the cutoff", () => {
+    let run = createRunState();
+    run = applyGroupResult(run, { homeId: "player", awayId: "shaolin", homeGoals: 1, awayGoals: 0 });
+    run = applyGroupResult(run, { homeId: "player", awayId: "beggar", homeGoals: 1, awayGoals: 0 });
+    run = applyGroupResult(run, { homeId: "player", awayId: "iron-palm", homeGoals: 1, awayGoals: 0 });
+
+    expect(run.stage).toBe("semifinal");
+    expect(run.endedReason).toBeUndefined();
+    expect(canAdvanceFromGroup(run)).toBe(true);
+  });
+
+  it("ends the run when an unresolved advancement cutoff includes the player", () => {
     let table = createGroupTable(["player", "shaolin", "beggar", "iron-palm"]);
-    table = recordResult(table, { homeId: "player", awayId: "iron-palm", homeGoals: 1, awayGoals: 0 });
-    table = recordResult(table, { homeId: "player", awayId: "shaolin", homeGoals: 1, awayGoals: 0 });
-    table = recordResult(table, { homeId: "player", awayId: "beggar", homeGoals: 1, awayGoals: 0 });
+    table = recordResult(table, { homeId: "player", awayId: "shaolin", homeGoals: 1, awayGoals: 1 });
+    table = recordResult(table, { homeId: "player", awayId: "beggar", homeGoals: 0, awayGoals: 1 });
+    table = recordResult(table, { homeId: "shaolin", awayId: "beggar", homeGoals: 0, awayGoals: 1 });
     table = recordResult(table, { homeId: "shaolin", awayId: "iron-palm", homeGoals: 1, awayGoals: 0 });
     table = recordResult(table, { homeId: "beggar", awayId: "iron-palm", homeGoals: 1, awayGoals: 0 });
-    table = recordResult(table, { homeId: "shaolin", awayId: "beggar", homeGoals: 0, awayGoals: 0 });
 
     const run = {
       ...createRunState(),
       groupTable: table,
-      groupMatchesPlayed: 2
+      groupMatchesPlayed: 2,
+      playedGroupOpponentIds: ["shaolin", "beggar"]
     };
 
-    const next = applyGroupResult(run, { homeId: "player", awayId: "iron-palm", homeGoals: 0, awayGoals: 0 });
+    const next = applyGroupResult(run, { homeId: "player", awayId: "iron-palm", homeGoals: 1, awayGoals: 0 });
 
     expect(next.stage).toBe("ended");
     expect(next.endedReason).toBe("advancement playoff required");
@@ -86,6 +112,12 @@ describe("run state", () => {
     const run = { ...createRunState(), stage: "semifinal" as const };
 
     expect(() => applyKnockoutResult(run, "draw")).toThrow("Knockout draw requires sudden death");
+  });
+
+  it("throws when a knockout winner is invalid at runtime", () => {
+    const run = { ...createRunState(), stage: "semifinal" as const };
+
+    expect(() => applyKnockoutResult(run, "bad" as Winner)).toThrow("Invalid knockout winner");
   });
 
   it("advances from semifinal to final on a player win", () => {
