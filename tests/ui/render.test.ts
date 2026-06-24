@@ -14,9 +14,20 @@ describe("renderApp", () => {
       ]
     });
 
+    const pitch = root.querySelector(".pitch") ?? root.querySelector('[aria-label="Tactical board"]');
+    const cells = root.querySelectorAll(".cell");
+    const cardButton = root.querySelector(".card");
+    const log = root.querySelector(".log");
+
     expect(root.textContent).toContain("Jianghu Goal");
     expect(root.textContent).toContain("Reputation: 5");
     expect(root.textContent).toContain("Group Stage");
     expect(root.textContent).toContain("Calm First Touch");
+    expect(pitch).toBeTruthy();
+    expect(cells).toHaveLength(15);
+    expect(Array.from(cells).some((cell) => cell.textContent?.includes("B"))).toBe(true);
+    expect(cardButton).toBeInstanceOf(HTMLButtonElement);
+    expect(cardButton?.getAttribute("data-card-id")).toBe("calm-first-touch");
+    expect(log?.textContent).toContain("Choose a card");
   });
 });
