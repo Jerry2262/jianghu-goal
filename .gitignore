@@ -1,0 +1,11 @@
+# Superpowers skill working state
+.superpowers/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/
+*.swp
