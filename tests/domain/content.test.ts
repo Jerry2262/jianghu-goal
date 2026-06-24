@@ -20,7 +20,53 @@ describe("demo content", () => {
 
   it("gives every disciple one linked disciple card", () => {
     for (const disciple of demoDisciples) {
-      expect(demoCards.some((card) => card.ownerDiscipleId === disciple.id)).toBe(true);
+      expect(
+        demoCards.some((card) => card.type === "disciple" && card.ownerDiscipleId === disciple.id)
+      ).toBe(true);
+    }
+  });
+
+  it("keeps sect, disciple, and card IDs unique", () => {
+    expect(new Set(demoSects.map((sect) => sect.id)).size).toBe(demoSects.length);
+    expect(new Set(demoDisciples.map((disciple) => disciple.id)).size).toBe(demoDisciples.length);
+    expect(new Set(demoCards.map((card) => card.id)).size).toBe(demoCards.length);
+  });
+
+  it("links each opponent to a non-playable sect", () => {
+    const sectById = new Map(demoSects.map((sect) => [sect.id, sect] as const));
+
+    for (const opponent of demoOpponents) {
+      const sect = sectById.get(opponent.id);
+      expect(sect).toBeDefined();
+      expect(sect?.playable).toBe(false);
+    }
+  });
+
+  it("keeps every disciple tied to a known sect", () => {
+    const sectIds = new Set(demoSects.map((sect) => sect.id));
+
+    for (const disciple of demoDisciples) {
+      expect(sectIds.has(disciple.sectId)).toBe(true);
+    }
+  });
+
+  it("keeps every card linked to a known sect or disciple", () => {
+    const sectIds = new Set(demoSects.map((sect) => sect.id));
+    const discipleIds = new Set(demoDisciples.map((disciple) => disciple.id));
+
+    for (const card of demoCards) {
+      if (card.type === "martial" || card.type === "formation") {
+        expect(sectIds.has(card.sectId)).toBe(true);
+      }
+
+      if (card.type === "disciple") {
+        expect(discipleIds.has(card.ownerDiscipleId)).toBe(true);
+      }
+
+      if (card.type === "status") {
+        expect("sectId" in card).toBe(false);
+        expect("ownerDiscipleId" in card).toBe(false);
+      }
     }
   });
 });

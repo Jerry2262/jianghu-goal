@@ -3,7 +3,6 @@ export const BOARD_LANES = ["top", "center", "bottom"] as const;
 
 export type BoardColumn = (typeof BOARD_COLUMNS)[number];
 export type BoardLane = (typeof BOARD_LANES)[number];
-export type TeamId = "player" | "opponent";
 
 export type Position = "forward" | "midfielder" | "defender" | "goalkeeper";
 export type CardType = "martial" | "disciple" | "formation" | "status";
@@ -34,17 +33,35 @@ export interface Disciple {
   maxStamina: number;
 }
 
-export interface Card {
+interface BaseCard {
   id: string;
   name: string;
-  type: CardType;
-  sectId?: string;
-  ownerDiscipleId?: string;
   cost: number;
   tags: CardTag[];
   text: string;
   exhausts?: boolean;
 }
+
+export interface MartialCard extends BaseCard {
+  type: "martial";
+  sectId: string;
+}
+
+export interface FormationCard extends BaseCard {
+  type: "formation";
+  sectId: string;
+}
+
+export interface DiscipleCard extends BaseCard {
+  type: "disciple";
+  ownerDiscipleId: string;
+}
+
+export interface StatusCard extends BaseCard {
+  type: "status";
+}
+
+export type Card = MartialCard | FormationCard | DiscipleCard | StatusCard;
 
 export interface OpponentSect {
   id: string;
