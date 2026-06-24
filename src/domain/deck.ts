@@ -10,6 +10,20 @@ export interface DeckState {
 }
 
 export function createDeckState(cards: Card[]): DeckState {
+  const seenCardIds = new Set<string>();
+
+  for (const card of cards) {
+    if (!Number.isFinite(card.cost) || !Number.isInteger(card.cost) || card.cost < 0) {
+      throw new Error(`Invalid card cost for ${card.name}`);
+    }
+
+    if (seenCardIds.has(card.id)) {
+      throw new Error(`Duplicate card id: ${card.id}`);
+    }
+
+    seenCardIds.add(card.id);
+  }
+
   return {
     drawPile: [...cards],
     hand: [],
@@ -21,6 +35,10 @@ export function createDeckState(cards: Card[]): DeckState {
 }
 
 export function drawForMoment(state: DeckState): DeckState {
+  if (state.hand.length > 0) {
+    throw new Error("Cannot draw a new moment with cards still in hand");
+  }
+
   let next: DeckState = {
     ...state,
     drawPile: [...state.drawPile],
@@ -47,11 +65,13 @@ export function drawForMoment(state: DeckState): DeckState {
 }
 
 export function playCard(state: DeckState, cardId: string): DeckState {
-  const card = state.hand.find((candidate) => candidate.id === cardId);
+  const cardIndex = state.hand.findIndex((candidate) => candidate.id === cardId);
 
-  if (!card) {
+  if (cardIndex === -1) {
     throw new Error(`Card not in hand: ${cardId}`);
   }
+
+  const card = state.hand[cardIndex];
 
   if (state.playsRemaining <= 0) {
     throw new Error("No plays remaining");
@@ -63,7 +83,7 @@ export function playCard(state: DeckState, cardId: string): DeckState {
 
   return {
     ...state,
-    hand: state.hand.filter((candidate) => candidate.id !== cardId),
+    hand: [...state.hand.slice(0, cardIndex), ...state.hand.slice(cardIndex + 1)],
     discard: card.exhausts ? state.discard : [...state.discard, card],
     exhaust: card.exhausts ? [...state.exhaust, card] : state.exhaust,
     momentum: state.momentum - card.cost,
@@ -72,6 +92,10 @@ export function playCard(state: DeckState, cardId: string): DeckState {
 }
 
 export function gainMomentum(state: DeckState, amount: number): DeckState {
+  if (!Number.isFinite(amount) || !Number.isInteger(amount) || amount < 0) {
+    throw new Error("Invalid momentum gain");
+  }
+
   return { ...state, momentum: state.momentum + amount };
 }
 
