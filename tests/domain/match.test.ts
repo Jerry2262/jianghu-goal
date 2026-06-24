@@ -42,6 +42,28 @@ describe("match engine", () => {
     );
   });
 
+  it.each([
+    ["resolved moments greater than max moments", { resolvedMoments: 5 }],
+    ["negative resolved moments", { resolvedMoments: -1 }],
+    ["fractional resolved moments", { resolvedMoments: 1.5 }],
+    ["non-finite resolved moments", { resolvedMoments: Number.NaN }]
+  ] as const)("rejects invalid resolve moment state for %s", (_, patch) => {
+    const match = createMatchState("group", "shaolin");
+
+    expect(() => resolveMoment({ ...match, ...patch }, { outcome: "save" })).toThrow("Invalid match moment state");
+  });
+
+  it.each([
+    ["max moments zero", { maxMoments: 0 }],
+    ["negative max moments", { maxMoments: -1 }],
+    ["fractional max moments", { maxMoments: 1.5 }],
+    ["non-finite max moments", { maxMoments: Number.POSITIVE_INFINITY }]
+  ] as const)("rejects invalid resolve moment max state for %s", (_, patch) => {
+    const match = createMatchState("group", "shaolin");
+
+    expect(() => resolveMoment({ ...match, ...patch }, { outcome: "save" })).toThrow("Invalid match moment state");
+  });
+
   it("allows group-stage draws without sudden death", () => {
     const match = createMatchState("group", "shaolin");
     const result = finishMatch({ ...match, resolvedMoments: 4, playerGoals: 1, opponentGoals: 1 });
@@ -68,6 +90,31 @@ describe("match engine", () => {
     const match = createMatchState("group", "shaolin");
 
     expect(() => finishMatch({ ...match, resolvedMoments: 5 })).toThrow("Invalid match moment state");
+  });
+
+  it.each([
+    ["negative resolved moments", { resolvedMoments: -1 }],
+    ["fractional resolved moments", { resolvedMoments: 1.5 }],
+    ["non-finite resolved moments", { resolvedMoments: Number.NaN }]
+  ] as const)("throws when finishing with invalid resolved moments for %s", (_, patch) => {
+    const match = createMatchState("group", "shaolin");
+
+    expect(() => finishMatch({ ...match, ...patch, maxMoments: 4, playerGoals: 0, opponentGoals: 0 })).toThrow(
+      "Invalid match moment state"
+    );
+  });
+
+  it.each([
+    ["max moments zero", { maxMoments: 0 }],
+    ["negative max moments", { maxMoments: -1 }],
+    ["fractional max moments", { maxMoments: 1.5 }],
+    ["non-finite max moments", { maxMoments: Number.POSITIVE_INFINITY }]
+  ] as const)("throws when finishing with invalid max moments for %s", (_, patch) => {
+    const match = createMatchState("group", "shaolin");
+
+    expect(() => finishMatch({ ...match, resolvedMoments: 4, ...patch, playerGoals: 0, opponentGoals: 0 })).toThrow(
+      "Invalid match moment state"
+    );
   });
 
   it("throws when finishing with invalid goal counts", () => {

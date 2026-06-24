@@ -38,13 +38,13 @@ export function createMatchState(stage: MatchStage, opponentId: string): MatchSt
 }
 
 export function resolveMoment(match: MatchState, resolution: MomentResolution): MatchState {
-  if (match.resolvedMoments >= match.maxMoments) {
-    throw new Error("No unresolved moments remaining");
-  }
-
   validateMatchMomentState(match);
   validateGoalCount(match.playerGoals);
   validateGoalCount(match.opponentGoals);
+
+  if (match.resolvedMoments >= match.maxMoments) {
+    throw new Error("No unresolved moments remaining");
+  }
 
   const next = { ...match, resolvedMoments: match.resolvedMoments + 1 };
 
