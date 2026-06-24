@@ -9,7 +9,7 @@ describe("progression", () => {
     expect(rewards).toHaveLength(3);
     expect(rewards).toEqual([
       { kind: "card", cardId: "cloud-step-pass" },
-      { kind: "card", cardId: "threaded-through-ball" },
+      { kind: "card", cardId: "soft-overcomes-hard" },
       { kind: "recovery", staminaAmount: 2 }
     ]);
   });
@@ -46,6 +46,23 @@ describe("progression", () => {
       { kind: "recovery", staminaAmount: 2 },
       { kind: "legacy", legacyPoints: 1 }
     ]);
+  });
+
+  it("returns two card rewards and recovery when exactly two unique martial cards are available", () => {
+    const rewards = generatePostMatchRewards(
+      [
+        { id: "one", name: "One", type: "martial", sectId: "wudang", cost: 1, tags: [], text: "" },
+        { id: "two", name: "Two", type: "martial", sectId: "wudang", cost: 1, tags: [], text: "" }
+      ],
+      0
+    );
+
+    expect(rewards).toEqual([
+      { kind: "card", cardId: "one" },
+      { kind: "card", cardId: "two" },
+      { kind: "recovery", staminaAmount: 2 }
+    ]);
+    expect(rewards.some((reward) => reward.kind === "legacy")).toBe(false);
   });
 
   it("resolves a between-match event into a concrete effect", () => {

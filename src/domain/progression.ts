@@ -57,25 +57,22 @@ export function generatePostMatchRewards(cards: Card[], seed: number): Reward[] 
     throw new Error("Invalid reward seed");
   }
 
-  const martialCards = cards.filter((card) => card.type === "martial").filter((card, index, allCards) => {
+  const martialCards = cards.filter((card) => card.type === "martial");
+  const uniqueMartialCards = martialCards.filter((card, index, allCards) => {
     return allCards.findIndex((candidate) => candidate.id === card.id) === index;
   });
 
-  if (martialCards.length === 0) {
+  if (uniqueMartialCards.length === 0) {
     throw new Error("No martial cards available for rewards");
   }
 
-  const firstIndex = positiveModulo(seed, martialCards.length);
-  const secondIndex = positiveModulo(seed + 2, martialCards.length);
-  const firstCardId = martialCards[firstIndex].id;
-  const rewards: Reward[] = [{ kind: "card", cardId: firstCardId }];
+  const startIndex = positiveModulo(seed, uniqueMartialCards.length);
+  const rewards: Reward[] = [];
 
-  if (martialCards.length > 1) {
-    const secondCard = martialCards[secondIndex];
+  for (let offset = 0; offset < uniqueMartialCards.length && rewards.length < 2; offset += 1) {
+    const card = uniqueMartialCards[positiveModulo(startIndex + offset, uniqueMartialCards.length)];
 
-    if (secondCard.id !== firstCardId) {
-      rewards.push({ kind: "card", cardId: secondCard.id });
-    }
+    rewards.push({ kind: "card", cardId: card.id });
   }
 
   if (rewards.length < 3) {
