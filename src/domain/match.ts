@@ -23,6 +23,10 @@ export interface MatchResult {
 }
 
 export function createMatchState(stage: MatchStage, opponentId: string): MatchState {
+  if (opponentId.trim() === "") {
+    throw new Error("Invalid opponent id");
+  }
+
   return {
     stage,
     opponentId,
@@ -34,6 +38,14 @@ export function createMatchState(stage: MatchStage, opponentId: string): MatchSt
 }
 
 export function resolveMoment(match: MatchState, resolution: MomentResolution): MatchState {
+  if (match.resolvedMoments >= match.maxMoments) {
+    throw new Error("No unresolved moments remaining");
+  }
+
+  validateMatchMomentState(match);
+  validateGoalCount(match.playerGoals);
+  validateGoalCount(match.opponentGoals);
+
   const next = { ...match, resolvedMoments: match.resolvedMoments + 1 };
 
   if (resolution.outcome === "player-goal") {
@@ -48,6 +60,14 @@ export function resolveMoment(match: MatchState, resolution: MomentResolution): 
 }
 
 export function finishMatch(match: MatchState): MatchResult {
+  validateMatchMomentState(match);
+  validateGoalCount(match.playerGoals);
+  validateGoalCount(match.opponentGoals);
+
+  if (match.resolvedMoments < match.maxMoments) {
+    throw new Error("Match still has unresolved moments");
+  }
+
   const winner = getWinner(match.playerGoals, match.opponentGoals);
 
   return {
@@ -62,4 +82,24 @@ function getWinner(playerGoals: number, opponentGoals: number): Winner {
   if (playerGoals > opponentGoals) return "player";
   if (opponentGoals > playerGoals) return "opponent";
   return "draw";
+}
+
+function validateMatchMomentState(match: Pick<MatchState, "resolvedMoments" | "maxMoments">): void {
+  if (!isValidMomentCount(match.resolvedMoments) || !isValidMomentCount(match.maxMoments) || match.maxMoments === 0) {
+    throw new Error("Invalid match moment state");
+  }
+
+  if (match.resolvedMoments > match.maxMoments) {
+    throw new Error("Invalid match moment state");
+  }
+}
+
+function validateGoalCount(goals: number): void {
+  if (!Number.isFinite(goals) || !Number.isInteger(goals) || goals < 0) {
+    throw new Error("Invalid goal count");
+  }
+}
+
+function isValidMomentCount(value: number): boolean {
+  return Number.isFinite(value) && Number.isInteger(value) && value >= 0;
 }
