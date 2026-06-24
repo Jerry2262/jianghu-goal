@@ -87,10 +87,11 @@ export function startPrototype(root: HTMLElement): () => void {
   rerender();
 
   const cleanup = () => {
-    if (activeCleanups.get(root) === cleanup) {
-      activeCleanups.delete(root);
+    if (activeCleanups.get(root) !== cleanup) {
+      return;
     }
 
+    activeCleanups.delete(root);
     abortController.abort();
   };
 
