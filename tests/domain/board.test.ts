@@ -55,7 +55,9 @@ describe("board", () => {
     expect(next.ball).toEqual({ lane: "top", column: "attack" });
     expect(next.ball).not.toBe(destination);
     expect(next.allies).not.toBe(board.allies);
+    expect(next.allies["lin-qing"]).not.toBe(board.allies["lin-qing"]);
     expect(next.opponents).not.toBe(board.opponents);
+    expect(next.opponents.marker).not.toBe(board.opponents.marker);
     expect(next.pressureMarkers).not.toBe(board.pressureMarkers);
 
     const mutableDestination: BoardCell = { lane: "top", column: "attack" };

@@ -34,6 +34,10 @@ export function createInitialBoard(): BoardState {
   };
 }
 
+function cloneCellMap(cells: Record<string, BoardCell>): Record<string, BoardCell> {
+  return Object.fromEntries(Object.entries(cells).map(([id, cell]) => [id, { ...cell }]));
+}
+
 export function isAdjacentPass(from: BoardCell, to: BoardCell): boolean {
   if (!isBoardCell(from) || !isBoardCell(to)) {
     return false;
@@ -56,8 +60,8 @@ export function moveBall(board: BoardState, to: BoardCell): BoardState {
   return {
     ...board,
     ball: { ...to },
-    allies: { ...board.allies },
-    opponents: { ...board.opponents },
+    allies: cloneCellMap(board.allies),
+    opponents: cloneCellMap(board.opponents),
     pressureMarkers: board.pressureMarkers.map((marker) => ({ ...marker }))
   };
 }
