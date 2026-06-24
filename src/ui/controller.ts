@@ -9,31 +9,58 @@ interface ControllerState {
   message: string;
 }
 
-export function startPrototype(root: HTMLElement): void {
-  let state: ControllerState = {
-    run: createRunState(),
-    deck: drawForMoment(createDeckState(demoCards.filter((card) => card.type !== "status"))),
-    message: "Choose up to three cards to resolve the key moment."
-  };
+function renderStartupError(root: HTMLElement, message: string): void {
+  const shell = document.createElement("section");
+  shell.className = "shell";
+
+  const error = document.createElement("div");
+  error.className = "log";
+  error.textContent = message;
+
+  shell.append(error);
+  root.replaceChildren(shell);
+}
+
+export function startPrototype(root: HTMLElement): () => void {
+  const abortController = new AbortController();
+
+  let state: ControllerState;
+
+  try {
+    state = {
+      run: createRunState(),
+      deck: drawForMoment(createDeckState(demoCards.filter((card) => card.type !== "status"))),
+      message: "Choose up to three cards to resolve the key moment."
+    };
+  } catch (error) {
+    renderStartupError(root, error instanceof Error ? error.message : "Could not start prototype.");
+    return () => abortController.abort();
+  }
 
   const rerender = () => {
     renderApp(root, { run: state.run, hand: state.deck.hand, message: state.message });
   };
 
-  root.addEventListener("click", (event) => {
+  const handleClick = (event: MouseEvent) => {
     const target = event.target;
     if (!(target instanceof HTMLElement)) return;
 
-    const button = target.closest<HTMLButtonElement>("[data-card-id]");
-    if (!button) return;
+    const button = target.closest(".hand button.card[data-card-id]");
+    if (!(button instanceof HTMLButtonElement)) return;
+
+    const cardId = button.dataset.cardId;
+    if (!cardId) {
+      state = {
+        ...state,
+        message: "Missing card id"
+      };
+      rerender();
+      return;
+    }
+
+    const label = button.querySelector("strong")?.textContent?.trim() ?? "card";
 
     try {
-      const cardId = button.dataset.cardId;
-      if (!cardId) {
-        throw new Error("Missing card id");
-      }
-
-      const label = button.textContent ? button.textContent.trim() : "card";
       state = {
         ...state,
         deck: playCard(state.deck, cardId),
@@ -47,7 +74,10 @@ export function startPrototype(root: HTMLElement): void {
     }
 
     rerender();
-  });
+  };
 
+  root.addEventListener("click", handleClick, { signal: abortController.signal });
   rerender();
+
+  return () => abortController.abort();
 }

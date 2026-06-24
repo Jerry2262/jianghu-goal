@@ -31,4 +31,36 @@ describe("renderApp", () => {
     expect(cardButton?.getAttribute("data-card-id")).toBe("calm-first-touch");
     expect(log?.textContent).toContain("Choose a card");
   });
+
+  it("renders untrusted content as text", () => {
+    const root = document.createElement("div");
+    const maliciousId = 'calm-first-touch"><script>alert(1)</script>';
+    const maliciousName = '<img src=x onerror=alert(1)>';
+    const maliciousText = '<script>alert(2)</script>';
+    const maliciousMessage = '<script>alert(3)</script>';
+
+    renderApp(root, {
+      run: createRunState(),
+      message: maliciousMessage,
+      hand: [
+        {
+          id: maliciousId,
+          name: maliciousName,
+          type: "martial",
+          sectId: "wudang",
+          cost: 0,
+          tags: ["pass"],
+          text: maliciousText
+        }
+      ]
+    });
+
+    const cardButton = root.querySelector(".card");
+
+    expect(root.querySelectorAll("img, script")).toHaveLength(0);
+    expect(root.textContent).toContain(maliciousName);
+    expect(root.textContent).toContain(maliciousText);
+    expect(root.textContent).toContain(maliciousMessage);
+    expect(cardButton?.getAttribute("data-card-id")).toBe(maliciousId);
+  });
 });
