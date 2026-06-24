@@ -11,6 +11,13 @@ describe("run state", () => {
     expect(run.stage).toBe("group");
   });
 
+  it("starts with empty legacy and no pending rewards", () => {
+    const run = createRunState();
+
+    expect(run.legacy.inheritedCardIds).toEqual([]);
+    expect(run.pendingRewards).toEqual([]);
+  });
+
   it("reduces reputation by one after a group-stage loss", () => {
     const run = applyGroupResult(createRunState(), { homeId: "player", awayId: "shaolin", homeGoals: 0, awayGoals: 1 });
 

@@ -1,4 +1,5 @@
 import { demoOpponents } from "../content/demo";
+import { createLegacyState, type LegacyState, type Reward } from "./progression";
 import {
   advancementResult,
   createGroupTable,
@@ -16,6 +17,8 @@ export interface RunState {
   reputation: number;
   groupTable: GroupTable;
   groupMatchesPlayed: number;
+  legacy: LegacyState;
+  pendingRewards: Reward[];
   endedReason?: string;
 }
 
@@ -24,7 +27,9 @@ export function createRunState(): RunState {
     stage: "group",
     reputation: 5,
     groupTable: createGroupTable(["player", ...demoOpponents.map((opponent) => opponent.id)]),
-    groupMatchesPlayed: 0
+    groupMatchesPlayed: 0,
+    legacy: createLegacyState(),
+    pendingRewards: []
   };
 }
 
