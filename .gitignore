@@ -1,5 +1,6 @@
 # Superpowers skill working state
 .superpowers/
+.worktrees/
 
 # OS
 .DS_Store
