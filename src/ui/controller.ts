@@ -9,6 +9,8 @@ interface ControllerState {
   message: string;
 }
 
+const activeCleanups = new WeakMap<HTMLElement, () => void>();
+
 function renderStartupError(root: HTMLElement, message: string): void {
   const shell = document.createElement("section");
   shell.className = "shell";
@@ -22,6 +24,11 @@ function renderStartupError(root: HTMLElement, message: string): void {
 }
 
 export function startPrototype(root: HTMLElement): () => void {
+  const previousCleanup = activeCleanups.get(root);
+  if (previousCleanup) {
+    previousCleanup();
+  }
+
   const abortController = new AbortController();
 
   let state: ControllerState;
@@ -79,5 +86,14 @@ export function startPrototype(root: HTMLElement): () => void {
   root.addEventListener("click", handleClick, { signal: abortController.signal });
   rerender();
 
-  return () => abortController.abort();
+  const cleanup = () => {
+    if (activeCleanups.get(root) === cleanup) {
+      activeCleanups.delete(root);
+    }
+
+    abortController.abort();
+  };
+
+  activeCleanups.set(root, cleanup);
+  return cleanup;
 }

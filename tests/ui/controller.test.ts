@@ -5,20 +5,36 @@ describe("startPrototype", () => {
   it("does not stack click handling across repeated starts", () => {
     const root = document.createElement("div");
     const cleanupFirst = startPrototype(root);
-    const cleanupSecond = startPrototype(root);
-
-    const initialButtons = root.querySelectorAll(".hand button.card[data-card-id]");
-    const firstButton = initialButtons[0];
+    const firstButton = root.querySelector(".hand button.card[data-card-id]");
 
     expect(firstButton).toBeInstanceOf(HTMLButtonElement);
 
-    firstButton?.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+    const cleanupSecond = startPrototype(root);
+    const detachedButton = firstButton;
+    const initialVisibleButtons = root.querySelectorAll(".hand button.card[data-card-id]");
+    const initialLog = root.querySelector(".log");
 
-    const nextButtons = root.querySelectorAll(".hand button.card[data-card-id]");
-    const log = root.querySelector(".log");
+    expect(initialVisibleButtons).toHaveLength(5);
+    expect(initialLog?.textContent).toContain("Choose up to three cards");
 
-    expect(nextButtons).toHaveLength(initialButtons.length - 1);
-    expect(log?.textContent?.startsWith("Played ")).toBe(true);
+    detachedButton?.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+
+    const buttonsAfterDetachedClick = root.querySelectorAll(".hand button.card[data-card-id]");
+    const logAfterDetachedClick = root.querySelector(".log");
+
+    expect(buttonsAfterDetachedClick).toHaveLength(initialVisibleButtons.length);
+    expect(logAfterDetachedClick?.textContent).toContain("Choose up to three cards");
+
+    const currentButton = root.querySelector(".hand button.card[data-card-id]");
+    expect(currentButton).toBeInstanceOf(HTMLButtonElement);
+
+    currentButton?.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+
+    const buttonsAfterCurrentClick = root.querySelectorAll(".hand button.card[data-card-id]");
+    const logAfterCurrentClick = root.querySelector(".log");
+
+    expect(buttonsAfterCurrentClick).toHaveLength(initialVisibleButtons.length - 1);
+    expect(logAfterCurrentClick?.textContent?.startsWith("Played ")).toBe(true);
 
     cleanupFirst();
     cleanupSecond();
