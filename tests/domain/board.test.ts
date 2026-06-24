@@ -6,6 +6,15 @@ describe("board", () => {
     const board = createInitialBoard();
 
     expect(board.ball).toEqual({ lane: "center", column: "midfield" });
+    expect(board.allies).toEqual({
+      "lin-qing": { lane: "center", column: "midfield" },
+      "zhou-yun": { lane: "top", column: "attack" },
+      "han-shi": { lane: "bottom", column: "buildup" },
+      "mo-ren": { lane: "center", column: "defense" }
+    });
+    expect(board.opponents).toEqual({
+      marker: { lane: "center", column: "attack" }
+    });
     expect(board.pressureMarkers).toEqual([]);
   });
 
@@ -19,6 +28,12 @@ describe("board", () => {
     const board = moveBall(createInitialBoard(), { lane: "top", column: "attack" });
 
     expect(board.ball).toEqual({ lane: "top", column: "attack" });
+  });
+
+  it("rejects illegal ball movement", () => {
+    expect(() => moveBall(createInitialBoard(), { lane: "bottom", column: "box" })).toThrow(
+      "Illegal ball movement from center/midfield to bottom/box"
+    );
   });
 
   it("checks pressure at a discrete cell", () => {
