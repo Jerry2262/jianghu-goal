@@ -43,6 +43,24 @@ describe("deck", () => {
         }
       ])
     ).toThrow("Invalid card cost for Card 1");
+
+    expect(() =>
+      createDeckState([
+        {
+          ...cards[0],
+          cost: Number.NaN
+        }
+      ])
+    ).toThrow("Invalid card cost for Card 1");
+
+    expect(() =>
+      createDeckState([
+        {
+          ...cards[0],
+          cost: Infinity
+        }
+      ])
+    ).toThrow("Invalid card cost for Card 1");
   });
 
   it("draws five cards and starts each key moment with three momentum", () => {
@@ -70,6 +88,43 @@ describe("deck", () => {
 
     expect(next.hand).toHaveLength(state.hand.length - 1);
     expect(next.hand.map((card) => card.id)).toEqual(startingHandIds.slice(1));
+  });
+
+  it("removes exactly one matching hand entry when duplicate ids are present", () => {
+    const duplicateCard: Card = {
+      id: "duplicate-card",
+      name: "Duplicate Card",
+      type: "martial",
+      sectId: "wudang",
+      cost: 0,
+      tags: ["pass"],
+      text: "Test card"
+    };
+    const unrelatedCard: Card = {
+      id: "unrelated-card",
+      name: "Unrelated Card",
+      type: "martial",
+      sectId: "wudang",
+      cost: 0,
+      tags: ["pass"],
+      text: "Test card"
+    };
+    const state = {
+      ...createDeckState([duplicateCard, unrelatedCard]),
+      hand: [duplicateCard, { ...duplicateCard }, unrelatedCard],
+      drawPile: [],
+      discard: [],
+      exhaust: [],
+      momentum: 3,
+      playsRemaining: 3
+    };
+
+    const next = playCard(state, duplicateCard.id);
+
+    expect(next.hand).toHaveLength(2);
+    expect(next.hand.filter((card) => card.id === duplicateCard.id)).toHaveLength(1);
+    expect(next.discard).toHaveLength(1);
+    expect(next.exhaust).toHaveLength(0);
   });
 
   it("sends exhausted cards to exhaust instead of discard", () => {
@@ -102,6 +157,8 @@ describe("deck", () => {
 
     expect(() => gainMomentum(state, -1)).toThrow("Invalid momentum gain");
     expect(() => gainMomentum(state, 1.5)).toThrow("Invalid momentum gain");
+    expect(() => gainMomentum(state, Number.NaN)).toThrow("Invalid momentum gain");
+    expect(() => gainMomentum(state, Infinity)).toThrow("Invalid momentum gain");
   });
 
   it("discards unplayed hand at moment end", () => {
