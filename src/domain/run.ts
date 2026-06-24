@@ -1,5 +1,12 @@
 import { demoOpponents } from "../content/demo";
-import { createGroupTable, recordResult, topTwoAdvance, type GroupTable, type MatchScore } from "./tournament";
+import {
+  advancementResult,
+  createGroupTable,
+  recordResult,
+  topTwoAdvance,
+  type GroupTable,
+  type MatchScore
+} from "./tournament";
 import type { Winner } from "./match";
 
 export type RunStage = "group" | "semifinal" | "final" | "won" | "ended";
@@ -22,9 +29,24 @@ export function createRunState(): RunState {
 }
 
 export function applyGroupResult(run: RunState, score: MatchScore): RunState {
-  const playerLost =
-    (score.homeId === "player" && score.homeGoals < score.awayGoals) ||
-    (score.awayId === "player" && score.awayGoals < score.homeGoals);
+  if (run.stage !== "group") {
+    throw new Error("Cannot apply group result outside group stage");
+  }
+
+  if (run.groupMatchesPlayed >= 3) {
+    throw new Error("Group stage already complete");
+  }
+
+  const homeIsPlayer = score.homeId === "player";
+  const awayIsPlayer = score.awayId === "player";
+
+  if (homeIsPlayer === awayIsPlayer) {
+    throw new Error("Group result must involve player");
+  }
+
+  const playerLost = homeIsPlayer
+    ? score.homeGoals < score.awayGoals
+    : score.awayGoals < score.homeGoals;
   const nextReputation = playerLost ? run.reputation - 1 : run.reputation;
   const next: RunState = {
     ...run,
@@ -37,12 +59,18 @@ export function applyGroupResult(run: RunState, score: MatchScore): RunState {
     return { ...next, stage: "ended", endedReason: "reputation reached zero" };
   }
 
-  if (next.groupMatchesPlayed >= 3 && !canAdvanceFromGroup(next)) {
-    return { ...next, stage: "ended", endedReason: "failed group qualification" };
-  }
-
   if (next.groupMatchesPlayed >= 3) {
-    return { ...next, stage: "semifinal" };
+    const result = advancementResult(next.groupTable);
+
+    if (result.status === "playoff-required") {
+      return { ...next, stage: "ended", endedReason: "advancement playoff required" };
+    }
+
+    if (result.teamIds.includes("player")) {
+      return { ...next, stage: "semifinal" };
+    }
+
+    return { ...next, stage: "ended", endedReason: "failed group qualification" };
   }
 
   return next;
@@ -61,7 +89,15 @@ export function canAdvanceFromGroup(run: RunState): boolean {
 }
 
 export function applyKnockoutResult(run: RunState, winner: Winner): RunState {
-  if (winner !== "player") {
+  if (run.stage !== "semifinal" && run.stage !== "final") {
+    throw new Error("Cannot apply knockout result outside knockout stage");
+  }
+
+  if (winner === "draw") {
+    throw new Error("Knockout draw requires sudden death");
+  }
+
+  if (winner === "opponent") {
     return { ...run, stage: "ended", endedReason: "lost knockout match" };
   }
 
