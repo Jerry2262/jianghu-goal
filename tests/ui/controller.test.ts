@@ -23,7 +23,7 @@ describe("startPrototype", () => {
     const initialLog = root.querySelector(".log");
 
     expect(initialButtons).toHaveLength(5);
-    expect(initialLog?.textContent).toContain("Choose up to three cards");
+    expect(initialLog?.textContent).toContain("选择最多三张牌");
 
     firstButton?.dispatchEvent(new MouseEvent("click", { bubbles: true }));
 
@@ -31,7 +31,7 @@ describe("startPrototype", () => {
     const logAfterDetachedClick = root.querySelector(".log");
 
     expect(buttonsAfterDetachedClick).toHaveLength(initialButtons.length);
-    expect(logAfterDetachedClick?.textContent).toContain("Choose up to three cards");
+    expect(logAfterDetachedClick?.textContent).toContain("选择最多三张牌");
     expect(abortSpy).toHaveBeenCalledTimes(1);
 
     const currentButton = root.querySelector(".hand button.card[data-card-id]");
@@ -43,7 +43,7 @@ describe("startPrototype", () => {
     const logAfterCurrentClick = root.querySelector(".log");
 
     expect(buttonsAfterCurrentClick).toHaveLength(initialButtons.length - 1);
-    expect(logAfterCurrentClick?.textContent?.startsWith("Played ")).toBe(true);
+    expect(logAfterCurrentClick?.textContent?.startsWith("打出：")).toBe(true);
 
     cleanup1();
     expect(abortSpy).toHaveBeenCalledTimes(1);

@@ -14,11 +14,11 @@ export function createDeckState(cards: Card[]): DeckState {
 
   for (const card of cards) {
     if (!Number.isFinite(card.cost) || !Number.isInteger(card.cost) || card.cost < 0) {
-      throw new Error(`Invalid card cost for ${card.name}`);
+      throw new Error(`卡牌费用无效：${card.name}`);
     }
 
     if (seenCardIds.has(card.id)) {
-      throw new Error(`Duplicate card id: ${card.id}`);
+      throw new Error(`卡牌编号重复：${card.id}`);
     }
 
     seenCardIds.add(card.id);
@@ -36,7 +36,7 @@ export function createDeckState(cards: Card[]): DeckState {
 
 export function drawForMoment(state: DeckState): DeckState {
   if (state.hand.length > 0) {
-    throw new Error("Cannot draw a new moment with cards still in hand");
+    throw new Error("手牌未清空，不能开始新的关键回合");
   }
 
   let next: DeckState = {
@@ -68,17 +68,17 @@ export function playCard(state: DeckState, cardId: string): DeckState {
   const cardIndex = state.hand.findIndex((candidate) => candidate.id === cardId);
 
   if (cardIndex === -1) {
-    throw new Error(`Card not in hand: ${cardId}`);
+    throw new Error(`手牌中没有这张牌：${cardId}`);
   }
 
   const card = state.hand[cardIndex];
 
   if (state.playsRemaining <= 0) {
-    throw new Error("No plays remaining");
+    throw new Error("本回合出牌次数已用完");
   }
 
   if (card.cost > state.momentum) {
-    throw new Error(`Not enough momentum for ${card.name}`);
+    throw new Error(`气势不足，无法打出：${card.name}`);
   }
 
   return {
@@ -93,7 +93,7 @@ export function playCard(state: DeckState, cardId: string): DeckState {
 
 export function gainMomentum(state: DeckState, amount: number): DeckState {
   if (!Number.isFinite(amount) || !Number.isInteger(amount) || amount < 0) {
-    throw new Error("Invalid momentum gain");
+    throw new Error("气势增量无效");
   }
 
   return { ...state, momentum: state.momentum + amount };

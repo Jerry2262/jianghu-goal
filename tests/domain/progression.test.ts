@@ -68,7 +68,7 @@ describe("progression", () => {
   it("resolves a between-match event into a concrete effect", () => {
     const result = resolveEvent("wandering-monk", "learn-defense");
 
-    expect(result.message).toContain("defensive technique");
+    expect(result.message).toContain("防守功夫");
     expect(result.reward.kind).toBe("card");
   });
 

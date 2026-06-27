@@ -90,17 +90,17 @@ export function resolveEvent(eventId: EventId, choice: EventChoice): EventResult
   switch (`${eventId}:${choice}`) {
     case "wandering-monk:learn-defense":
       return {
-        message: "The wandering monk teaches a defensive technique.",
+        message: "游方僧传授了一式防守功夫。",
         reward: { kind: "card", cardId: "tai-chi-deflection" }
       };
     case "muddy-pitch:rest":
       return {
-        message: "The team rests and recovers before playing on the muddy pitch.",
+        message: "队伍先行休整，再踏上泥泞球场。",
         reward: { kind: "recovery", staminaAmount: 2 }
       };
     case "private-duel:accept-risk":
       return {
-        message: "The disciple accepts the risk and earns legacy.",
+        message: "弟子接下私斗，赢得门派传承。",
         reward: { kind: "legacy", legacyPoints: 1 }
       };
     default:

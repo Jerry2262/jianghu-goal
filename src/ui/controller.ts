@@ -37,10 +37,10 @@ export function startPrototype(root: HTMLElement): () => void {
     state = {
       run: createRunState(),
       deck: drawForMoment(createDeckState(demoCards.filter((card) => card.type !== "status"))),
-      message: "Choose up to three cards to resolve the key moment."
+      message: "选择最多三张牌来解决这个关键回合。"
     };
   } catch (error) {
-    renderStartupError(root, error instanceof Error ? error.message : "Could not start prototype.");
+    renderStartupError(root, error instanceof Error ? error.message : "无法启动原型。");
     return () => abortController.abort();
   }
 
@@ -59,24 +59,24 @@ export function startPrototype(root: HTMLElement): () => void {
     if (!cardId) {
       state = {
         ...state,
-        message: "Missing card id"
+        message: "缺少卡牌编号"
       };
       rerender();
       return;
     }
 
-    const label = button.querySelector("strong")?.textContent?.trim() ?? "card";
+    const label = button.querySelector("strong")?.textContent?.trim() ?? "卡牌";
 
     try {
       state = {
         ...state,
         deck: playCard(state.deck, cardId),
-        message: `Played ${label}.`
+        message: `打出：${label}。`
       };
     } catch (error) {
       state = {
         ...state,
-        message: error instanceof Error ? error.message : "Could not play card."
+        message: error instanceof Error ? error.message : "无法打出这张牌。"
       };
     }
 

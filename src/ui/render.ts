@@ -8,8 +8,27 @@ export interface AppViewState {
   hand: Card[];
 }
 
+const STAGE_LABELS: Record<RunState["stage"], string> = {
+  group: "小组赛",
+  semifinal: "半决赛",
+  final: "决赛",
+  won: "已夺冠",
+  ended: "已结束"
+};
+
+const TEAM_LABELS: Record<string, string> = {
+  player: "武当",
+  shaolin: "少林",
+  beggar: "丐帮",
+  "iron-palm": "铁掌堂"
+};
+
+function teamLabel(teamId: string): string {
+  return TEAM_LABELS[teamId] ?? teamId;
+}
+
 export function renderApp(root: HTMLElement, state: AppViewState): void {
-  const stageLabel = state.run.stage === "group" ? "Group Stage" : state.run.stage;
+  const stageLabel = STAGE_LABELS[state.run.stage];
   const standings = rankedStandings(state.run.groupTable);
 
   const shell = document.createElement("section");
@@ -19,11 +38,11 @@ export function renderApp(root: HTMLElement, state: AppViewState): void {
   topbar.className = "topbar";
 
   const title = document.createElement("h1");
-  title.textContent = "Jianghu Goal";
+  title.textContent = "江湖球门";
 
   const resource = document.createElement("div");
   resource.className = "resource";
-  resource.textContent = `Reputation: ${state.run.reputation}`;
+  resource.textContent = `声望：${state.run.reputation}`;
 
   topbar.append(title, resource);
 
@@ -41,7 +60,7 @@ export function renderApp(root: HTMLElement, state: AppViewState): void {
 
   for (const row of standings) {
     const item = document.createElement("li");
-    item.textContent = `${row.teamId}: ${row.points} pts (${row.goalDifference})`;
+    item.textContent = `${teamLabel(row.teamId)}：${row.points} 分（净胜 ${row.goalDifference}）`;
     standingsList.append(item);
   }
 
@@ -49,7 +68,7 @@ export function renderApp(root: HTMLElement, state: AppViewState): void {
 
   const pitch = document.createElement("section");
   pitch.className = "pitch";
-  pitch.setAttribute("aria-label", "Tactical board");
+  pitch.setAttribute("aria-label", "战术棋盘");
 
   for (let index = 0; index < 15; index += 1) {
     const cell = document.createElement("div");
@@ -62,7 +81,7 @@ export function renderApp(root: HTMLElement, state: AppViewState): void {
   handPanel.className = "panel";
 
   const handHeading = document.createElement("h2");
-  handHeading.textContent = "Hand";
+  handHeading.textContent = "手牌";
 
   const hand = document.createElement("div");
   hand.className = "hand";
@@ -76,7 +95,7 @@ export function renderApp(root: HTMLElement, state: AppViewState): void {
     name.textContent = card.name;
 
     const cost = document.createElement("span");
-    cost.textContent = `${card.cost} momentum`;
+    cost.textContent = `${card.cost} 点气势`;
 
     const text = document.createElement("p");
     text.textContent = card.text;

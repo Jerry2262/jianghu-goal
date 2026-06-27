@@ -69,4 +69,28 @@ describe("demo content", () => {
       }
     }
   });
+
+  it("uses Chinese-only display text for player-facing demo content", () => {
+    const hasAsciiLetter = /[A-Za-z]/;
+
+    for (const sect of demoSects) {
+      expect(sect.name).not.toMatch(hasAsciiLetter);
+      expect(sect.style).not.toMatch(hasAsciiLetter);
+    }
+
+    for (const opponent of demoOpponents) {
+      expect(opponent.name).not.toMatch(hasAsciiLetter);
+      expect(opponent.style).not.toMatch(hasAsciiLetter);
+    }
+
+    for (const disciple of demoDisciples) {
+      expect(disciple.name).not.toMatch(hasAsciiLetter);
+      expect(disciple.trait).not.toMatch(hasAsciiLetter);
+    }
+
+    for (const card of demoCards) {
+      expect(card.name).not.toMatch(hasAsciiLetter);
+      expect(card.text).not.toMatch(hasAsciiLetter);
+    }
+  });
 });

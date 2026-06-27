@@ -22,7 +22,7 @@ describe("deck", () => {
       }
     ];
 
-    expect(() => createDeckState(duplicateCards)).toThrow(`Duplicate card id: ${cards[0].id}`);
+    expect(() => createDeckState(duplicateCards)).toThrow(`卡牌编号重复：${cards[0].id}`);
   });
 
   it("rejects invalid card costs when creating a deck", () => {
@@ -33,7 +33,7 @@ describe("deck", () => {
           cost: -1
         }
       ])
-    ).toThrow("Invalid card cost for Card 1");
+    ).toThrow("卡牌费用无效：Card 1");
 
     expect(() =>
       createDeckState([
@@ -42,7 +42,7 @@ describe("deck", () => {
           cost: 1.5
         }
       ])
-    ).toThrow("Invalid card cost for Card 1");
+    ).toThrow("卡牌费用无效：Card 1");
 
     expect(() =>
       createDeckState([
@@ -51,7 +51,7 @@ describe("deck", () => {
           cost: Number.NaN
         }
       ])
-    ).toThrow("Invalid card cost for Card 1");
+    ).toThrow("卡牌费用无效：Card 1");
 
     expect(() =>
       createDeckState([
@@ -60,7 +60,7 @@ describe("deck", () => {
           cost: Infinity
         }
       ])
-    ).toThrow("Invalid card cost for Card 1");
+    ).toThrow("卡牌费用无效：Card 1");
   });
 
   it("draws five cards and starts each key moment with three momentum", () => {
@@ -149,16 +149,16 @@ describe("deck", () => {
   it("rejects drawing a new moment while cards remain in hand", () => {
     const state = drawForMoment(createDeckState(cards));
 
-    expect(() => drawForMoment(state)).toThrow("Cannot draw a new moment with cards still in hand");
+    expect(() => drawForMoment(state)).toThrow("手牌未清空，不能开始新的关键回合");
   });
 
   it("rejects invalid momentum gains", () => {
     const state = createDeckState(cards);
 
-    expect(() => gainMomentum(state, -1)).toThrow("Invalid momentum gain");
-    expect(() => gainMomentum(state, 1.5)).toThrow("Invalid momentum gain");
-    expect(() => gainMomentum(state, Number.NaN)).toThrow("Invalid momentum gain");
-    expect(() => gainMomentum(state, Infinity)).toThrow("Invalid momentum gain");
+    expect(() => gainMomentum(state, -1)).toThrow("气势增量无效");
+    expect(() => gainMomentum(state, 1.5)).toThrow("气势增量无效");
+    expect(() => gainMomentum(state, Number.NaN)).toThrow("气势增量无效");
+    expect(() => gainMomentum(state, Infinity)).toThrow("气势增量无效");
   });
 
   it("discards unplayed hand at moment end", () => {

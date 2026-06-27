@@ -8,28 +8,31 @@ describe("renderApp", () => {
 
     renderApp(root, {
       run: createRunState(),
-      message: "Choose a card",
+      message: "选择一张牌",
       hand: [
-        { id: "calm-first-touch", name: "Calm First Touch", type: "martial", sectId: "wudang", cost: 0, tags: ["pass"], text: "Gain 1 momentum if pressured." }
+        { id: "calm-first-touch", name: "静心停球", type: "martial", sectId: "wudang", cost: 0, tags: ["pass"], text: "若球正受压，获得 1 点气势。" }
       ]
     });
 
-    const pitch = root.querySelector(".pitch") ?? root.querySelector('[aria-label="Tactical board"]');
+    const pitch = root.querySelector(".pitch") ?? root.querySelector('[aria-label="战术棋盘"]');
     const cells = root.querySelectorAll(".cell");
     const cardButton = root.querySelector(".card");
     const log = root.querySelector(".log");
 
-    expect(root.textContent).toContain("Jianghu Goal");
-    expect(root.textContent).toContain("Reputation: 5");
-    expect(root.textContent).toContain("Group Stage");
-    expect(root.textContent).toContain("Calm First Touch");
+    expect(root.textContent).toContain("江湖球门");
+    expect(root.textContent).toContain("声望：5");
+    expect(root.textContent).toContain("小组赛");
+    expect(root.textContent).toContain("静心停球");
+    expect(root.textContent).toContain("武当");
+    expect(root.textContent).toContain("0 分");
+    expect(root.textContent).toContain("0 点气势");
     expect(pitch).toBeTruthy();
     expect(cells).toHaveLength(15);
     const ballCells = Array.from(cells).filter((cell) => cell.textContent === "B");
     expect(ballCells).toHaveLength(1);
     expect(cardButton).toBeInstanceOf(HTMLButtonElement);
     expect(cardButton?.getAttribute("data-card-id")).toBe("calm-first-touch");
-    expect(log?.textContent).toContain("Choose a card");
+    expect(log?.textContent).toContain("选择一张牌");
   });
 
   it("renders untrusted content as text", () => {

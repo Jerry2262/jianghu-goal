@@ -1,36 +1,36 @@
 import type { Card, Disciple, OpponentSect, Sect } from "../domain/types";
 
 export const demoSects: Sect[] = [
-  { id: "wudang", name: "Wudang", playable: true, style: "Controlled passing and pressure release" },
-  { id: "shaolin", name: "Shaolin", playable: false, style: "Defensive duels and box survival" },
-  { id: "beggar", name: "Beggar Sect", playable: false, style: "Scrambles, steals, and chaos chains" },
-  { id: "iron-palm", name: "Iron Palm Hall", playable: false, style: "Direct pressure and hard shots" }
+  { id: "wudang", name: "武当", playable: true, style: "控传、卸力与化解压迫" },
+  { id: "shaolin", name: "少林", playable: false, style: "防守对抗与禁区硬守" },
+  { id: "beggar", name: "丐帮", playable: false, style: "乱战、抢断与连环变招" },
+  { id: "iron-palm", name: "铁掌堂", playable: false, style: "直压禁区与刚猛射门" }
 ];
 
 export const demoOpponents: OpponentSect[] = [
-  { id: "shaolin", name: "Shaolin", rating: 2, style: "Blocks shots and wins contact" },
-  { id: "beggar", name: "Beggar Sect", rating: 2, style: "Creates loose balls and steals momentum" },
-  { id: "iron-palm", name: "Iron Palm Hall", rating: 3, style: "Pressures the box with power shots" }
+  { id: "shaolin", name: "少林", rating: 2, style: "封堵射门，擅长身体对抗" },
+  { id: "beggar", name: "丐帮", rating: 2, style: "制造乱球，偷走气势" },
+  { id: "iron-palm", name: "铁掌堂", rating: 3, style: "以重炮持续压迫禁区" }
 ];
 
 export const demoDisciples: Disciple[] = [
-  { id: "lin-qing", name: "Lin Qing", sectId: "wudang", position: "midfielder", technique: 3, movement: 2, spirit: 2, trait: "Gains momentum after two passes in one moment", stamina: 5, maxStamina: 5 },
-  { id: "zhou-yun", name: "Zhou Yun", sectId: "wudang", position: "forward", technique: 3, movement: 3, spirit: 2, trait: "Shots cost 1 less momentum in stoppage time", stamina: 4, maxStamina: 4 },
-  { id: "han-shi", name: "Han Shi", sectId: "wudang", position: "defender", technique: 2, movement: 2, spirit: 3, trait: "Blocks generate 1 momentum", stamina: 5, maxStamina: 5 },
-  { id: "mo-ren", name: "Mo Ren", sectId: "wudang", position: "goalkeeper", technique: 2, movement: 1, spirit: 4, trait: "First save each match restores 1 reputation on a clean sheet", stamina: 4, maxStamina: 4 }
+  { id: "lin-qing", name: "林青", sectId: "wudang", position: "midfielder", technique: 3, movement: 2, spirit: 2, trait: "同一回合完成两次传球后获得气势", stamina: 5, maxStamina: 5 },
+  { id: "zhou-yun", name: "周云", sectId: "wudang", position: "forward", technique: 3, movement: 3, spirit: 2, trait: "补时阶段射门少花费一点气势", stamina: 4, maxStamina: 4 },
+  { id: "han-shi", name: "韩石", sectId: "wudang", position: "defender", technique: 2, movement: 2, spirit: 3, trait: "完成封堵时获得一点气势", stamina: 5, maxStamina: 5 },
+  { id: "mo-ren", name: "莫忍", sectId: "wudang", position: "goalkeeper", technique: 2, movement: 1, spirit: 4, trait: "每场首次扑救且零封时恢复一点声望", stamina: 4, maxStamina: 4 }
 ];
 
 export const demoCards: Card[] = [
-  { id: "tai-chi-deflection", name: "Tai Chi Deflection", type: "martial", sectId: "wudang", cost: 1, tags: ["defense", "movement"], text: "Cancel one pressure marker and move the ball one lane." },
-  { id: "cloud-step-pass", name: "Cloud Step Pass", type: "martial", sectId: "wudang", cost: 1, tags: ["pass", "movement"], text: "Pass through a marked lane if the receiver has movement 3+." },
-  { id: "soft-overcomes-hard", name: "Soft Overcomes Hard", type: "martial", sectId: "wudang", cost: 2, tags: ["defense", "spirit"], text: "Convert opponent pressure into 2 momentum." },
-  { id: "crane-wing-shift", name: "Crane Wing Shift", type: "formation", sectId: "wudang", cost: 1, tags: ["movement"], text: "Move two allied disciples one lane." },
-  { id: "threaded-through-ball", name: "Threaded Through Ball", type: "martial", sectId: "wudang", cost: 2, tags: ["pass"], text: "Move the ball from midfield to attack if a passing lane is open." },
-  { id: "calm-first-touch", name: "Calm First Touch", type: "martial", sectId: "wudang", cost: 0, tags: ["pass", "spirit"], text: "Gain 1 momentum if the ball is under pressure." },
-  { id: "lin-qing-orbit-pass", name: "Lin Qing: Orbit Pass", type: "disciple", ownerDiscipleId: "lin-qing", cost: 1, tags: ["pass"], text: "Complete a safe pass and gain 1 momentum if this is the second pass this moment." },
-  { id: "zhou-yun-cloud-shot", name: "Zhou Yun: Cloud Shot", type: "disciple", ownerDiscipleId: "zhou-yun", cost: 2, tags: ["shot"], text: "Create a shot from attack or box. Technique 3+ adds +1 shot power." },
-  { id: "han-shi-sleeve-block", name: "Han Shi: Sleeve Block", type: "disciple", ownerDiscipleId: "han-shi", cost: 1, tags: ["defense"], text: "Block a shot lane. Spirit 3+ grants 1 momentum." },
-  { id: "mo-ren-still-water-save", name: "Mo Ren: Still Water Save", type: "disciple", ownerDiscipleId: "mo-ren", cost: 2, tags: ["defense", "spirit"], text: "Prevent one goal unless the opponent has two pressure markers in the box." },
-  { id: "marked-lane", name: "Marked Lane", type: "status", cost: 0, tags: ["pressure"], text: "This lane counts as pressured until cleared.", exhausts: true },
-  { id: "muddy-pitch", name: "Muddy Pitch", type: "status", cost: 0, tags: ["chaos"], text: "Movement cards cost 1 extra this moment.", exhausts: true }
+  { id: "tai-chi-deflection", name: "太极卸力", type: "martial", sectId: "wudang", cost: 1, tags: ["defense", "movement"], text: "清除一个压迫标记，并让球横移一线。" },
+  { id: "cloud-step-pass", name: "云步传球", type: "martial", sectId: "wudang", cost: 1, tags: ["pass", "movement"], text: "若接球队员身法达到三点，可穿过被盯防的线路。" },
+  { id: "soft-overcomes-hard", name: "以柔克刚", type: "martial", sectId: "wudang", cost: 2, tags: ["defense", "spirit"], text: "将对手压迫化为两点气势。" },
+  { id: "crane-wing-shift", name: "鹤翼换位", type: "formation", sectId: "wudang", cost: 1, tags: ["movement"], text: "移动两名己方弟子，各横移一线。" },
+  { id: "threaded-through-ball", name: "穿针直塞", type: "martial", sectId: "wudang", cost: 2, tags: ["pass"], text: "若传球线路打开，将球从中场送入进攻区。" },
+  { id: "calm-first-touch", name: "静心停球", type: "martial", sectId: "wudang", cost: 0, tags: ["pass", "spirit"], text: "若球正受压，获得一点气势。" },
+  { id: "lin-qing-orbit-pass", name: "林青：环转传球", type: "disciple", ownerDiscipleId: "lin-qing", cost: 1, tags: ["pass"], text: "完成一次稳妥传球；若这是本回合第二次传球，获得一点气势。" },
+  { id: "zhou-yun-cloud-shot", name: "周云：穿云射门", type: "disciple", ownerDiscipleId: "zhou-yun", cost: 2, tags: ["shot"], text: "在进攻区或禁区制造射门；若技巧达到三点，射门威力加一。" },
+  { id: "han-shi-sleeve-block", name: "韩石：拂袖封堵", type: "disciple", ownerDiscipleId: "han-shi", cost: 1, tags: ["defense"], text: "封住一条射门线路；若心气达到三点，获得一点气势。" },
+  { id: "mo-ren-still-water-save", name: "莫忍：止水扑救", type: "disciple", ownerDiscipleId: "mo-ren", cost: 2, tags: ["defense", "spirit"], text: "阻止一个进球，除非对手在禁区已有两个压迫标记。" },
+  { id: "marked-lane", name: "被盯防的线路", type: "status", cost: 0, tags: ["pressure"], text: "这条线路在被清除前视为受压。", exhausts: true },
+  { id: "muddy-pitch", name: "泥泞球场", type: "status", cost: 0, tags: ["chaos"], text: "本回合身法牌额外花费一点气势。", exhausts: true }
 ];
