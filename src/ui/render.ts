@@ -55,6 +55,34 @@ export function renderApp(root: HTMLElement, state: AppViewState): void {
   const standingsHeading = document.createElement("h2");
   standingsHeading.textContent = stageLabel;
 
+  const guidance = document.createElement("section");
+  guidance.className = "guidance";
+
+  const guidanceHeading = document.createElement("h3");
+  guidanceHeading.textContent = "怎么打";
+
+  const guidanceList = document.createElement("dl");
+
+  const guidanceItems = [
+    ["目标", "小组赛拿积分，争取前二晋级。"],
+    ["当前", "这是一个关键回合。"],
+    ["下一步", "选择一张手牌打出；新手优先选择 0 费或 1 费牌。"],
+    ["资源", "气势是出牌费用，每个关键回合初始 3 点。"],
+    ["棋盘", "B 表示球的位置。"]
+  ] as const;
+
+  for (const [label, text] of guidanceItems) {
+    const term = document.createElement("dt");
+    term.textContent = label;
+
+    const description = document.createElement("dd");
+    description.textContent = text;
+
+    guidanceList.append(term, description);
+  }
+
+  guidance.append(guidanceHeading, guidanceList);
+
   const standingsList = document.createElement("ol");
   standingsList.className = "standings";
 
@@ -64,7 +92,7 @@ export function renderApp(root: HTMLElement, state: AppViewState): void {
     standingsList.append(item);
   }
 
-  standingsPanel.append(standingsHeading, standingsList);
+  standingsPanel.append(guidance, standingsHeading, standingsList);
 
   const pitch = document.createElement("section");
   pitch.className = "pitch";

@@ -26,6 +26,11 @@ describe("renderApp", () => {
     expect(root.textContent).toContain("武当");
     expect(root.textContent).toContain("0 分");
     expect(root.textContent).toContain("0 点气势");
+    expect(root.textContent).toContain("目标");
+    expect(root.textContent).toContain("小组赛拿积分，争取前二晋级");
+    expect(root.textContent).toContain("下一步");
+    expect(root.textContent).toContain("优先选择 0 费或 1 费牌");
+    expect(root.textContent).toContain("B 表示球的位置");
     expect(pitch).toBeTruthy();
     expect(cells).toHaveLength(15);
     const ballCells = Array.from(cells).filter((cell) => cell.textContent === "B");

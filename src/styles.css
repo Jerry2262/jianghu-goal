@@ -75,6 +75,33 @@ button {
   padding-left: 24px;
 }
 
+.guidance {
+  margin-bottom: 14px;
+  padding-bottom: 12px;
+  border-bottom: 1px dashed rgba(47, 59, 47, 0.45);
+}
+
+.guidance h3 {
+  margin: 0 0 8px;
+  font-size: 16px;
+}
+
+.guidance dl {
+  display: grid;
+  grid-template-columns: 56px 1fr;
+  gap: 6px 8px;
+  margin: 0;
+}
+
+.guidance dt {
+  font-weight: 800;
+}
+
+.guidance dd {
+  margin: 0;
+  line-height: 1.4;
+}
+
 .pitch {
   display: grid;
   grid-template-columns: repeat(5, minmax(0, 1fr));
