@@ -11,6 +11,22 @@ interface ControllerState {
 
 const activeCleanups = new WeakMap<HTMLElement, () => void>();
 
+function openingInstruction(): string {
+  return "先打出一张 0 费或 1 费牌，观察手牌和气势如何变化。";
+}
+
+function playedInstruction(label: string, deck: DeckState): string {
+  if (deck.playsRemaining <= 0) {
+    return `已打出：${label}。这个关键回合的三次出牌已用完，最小循环已经跑通。`;
+  }
+
+  if (deck.hand.length === 0) {
+    return `已打出：${label}。手牌已用完，最小循环已经跑通。`;
+  }
+
+  return `已打出：${label}。还可以继续打牌，也可以先观察气势和手牌变化。`;
+}
+
 function renderStartupError(root: HTMLElement, message: string): void {
   const shell = document.createElement("section");
   shell.className = "shell";
@@ -37,7 +53,7 @@ export function startPrototype(root: HTMLElement): () => void {
     state = {
       run: createRunState(),
       deck: drawForMoment(createDeckState(demoCards.filter((card) => card.type !== "status"))),
-      message: "选择最多三张牌来解决这个关键回合。"
+      message: openingInstruction()
     };
   } catch (error) {
     renderStartupError(root, error instanceof Error ? error.message : "无法启动原型。");
@@ -68,10 +84,11 @@ export function startPrototype(root: HTMLElement): () => void {
     const label = button.querySelector("strong")?.textContent?.trim() ?? "卡牌";
 
     try {
+      const nextDeck = playCard(state.deck, cardId);
       state = {
         ...state,
-        deck: playCard(state.deck, cardId),
-        message: `打出：${label}。`
+        deck: nextDeck,
+        message: playedInstruction(label, nextDeck)
       };
     } catch (error) {
       state = {
